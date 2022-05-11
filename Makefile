@@ -4,11 +4,12 @@ COMPILER ?=
 ifeq ($(COMPILER),stock)
 	OCAMLOPT := ocamlopt.opt
 else ifeq ($(COMPILER),mc)
-	OCAMLOPT := ~/repos/ocaml-multicore/_install/bin/ocamlopt.opt
+	#OCAMLOPT := /media/mand/.opam/4.12.0+domains/bin/ocamlopt.opt
+	OCAMLOPT := /media/mand/.opam/ocaml-variants.4.12.0+domains+effects/bin/ocamlopt.opt
 else ifeq ($(COMPILER),mcsc)
-	OCAMLOPT := ~/repos/ocaml-multicore-sc/_install/bin/ocamlopt.opt
+	OCAMLOPT := # ~/repos/ocaml-multicore-sc/_install/bin/ocamlopt.opt
 else ifeq ($(COMPILER),mc+noredzone)
-	OCAMLOPT := ~/repos/ocaml-multicore-redzone0/_install/bin/ocamlopt.opt
+	OCAMLOPT := # ~/repos/ocaml-multicore-redzone0/_install/bin/ocamlopt.opt
 else
 	OCAMLOPT :=
 endif
@@ -63,6 +64,14 @@ time_eff: exe
 		'./$(COMPILER)_eff_sudan.exe 1_000_000 2 2 2' \
 		'./$(COMPILER)_eff_motzkin.exe 1 21' \
 		'./$(COMPILER)_eff_ack.exe 1 3 10'
+
+time_generators:
+	taskset --cpu-list 2-10 hyperfine --warmup 1 -u millisecond \
+		-m 3 \
+		./stock_cps_gen.exe \
+		./stock_monad_gen.exe \
+		./mc_eff_gen.exe
+
 
 instr: exe
 	perf stat ./$(COMPILER)_extcall.exe 100_000_000
